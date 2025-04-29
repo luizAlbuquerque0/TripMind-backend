@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  travels        Travel[]         @relation("UserTravels")
+  FavoriteTravel FavoriteTravel[]
+
+  @@map("Users")
+}
+
+model Travel {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  origin      String
+  destination String
+  budget      Float?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], name: "UserTravels")
+
+  activities     Activity[]       @relation("TravelActivities")
+  FavoriteTravel FavoriteTravel[]
+
+  @@map("Travels")
+}
+
+model Activity {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  location    String?
+  date        DateTime
+  time        String?
+  cost        Float?
+
+  travelId String
+  travel   Travel @relation(fields: [travelId], references: [id], name: "TravelActivities")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("Activities")
+}
+
+model FavoriteTravel {
+  id       String @id @default(uuid())
+  userId   String
+  travelId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  travel Travel @relation(fields: [travelId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, travelId])
+  @@map("Favorites")
+}
