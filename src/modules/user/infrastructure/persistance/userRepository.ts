@@ -13,12 +13,22 @@ export class UserRepository implements IUserRepository {
   ): Promise<Omit<UserEntity, 'password'> | null> {
     return await this.prisma.user.findUnique({
       where: { email },
+      select: {
+        email: true,
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        name: true,
+      },
     });
   }
 
   async createUser(user: UserEntity): Promise<string> {
     const createdUser = await this.prisma.user.create({
       data: user,
+      select: {
+        id: true,
+      },
     });
 
     return createdUser.id;
