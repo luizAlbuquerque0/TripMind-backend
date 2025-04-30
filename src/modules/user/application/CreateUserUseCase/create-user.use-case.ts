@@ -5,6 +5,7 @@ import {
 } from '../../domain/Repositories/IUserRepository';
 import { CreateUserDto } from '../../domain/DTOs/create-user.dto';
 import { UserEntity } from '../../domain/Entities/user.entity';
+import { hash } from 'bcryptjs';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -15,11 +16,17 @@ export class CreateUserUseCase {
 
   async execute(dto: CreateUserDto): Promise<string> {
     try {
+      const { name, password, email } = dto;
       const sameEmail = await this.userRepo.getUserByEmail(dto.email);
 
       if (sameEmail) throw new BadRequestException('Email alredy taken');
 
-      const newUser = new UserEntity(dto);
+      const hasedPassword = await hash(password, 10);
+      const newUser = new UserEntity({
+        name,
+        email,
+        password: hasedPassword,
+      });
 
       return this.userRepo.createUser(newUser);
     } catch (error) {
