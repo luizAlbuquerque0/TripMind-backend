@@ -8,7 +8,7 @@ export class SignUpUseCase {
 
   async execute(signUpDto: SignUpDto): Promise<any> {
     try {
-      const userId = this.createUserUseCase.execute(signUpDto);
+      const userId = await this.createUserUseCase.execute(signUpDto);
 
       return {
         userId,
