@@ -8,18 +8,9 @@ import { UserEntity } from '../../domain/Entities/user.entity';
 export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserByEmail(
-    email: string,
-  ): Promise<Omit<UserEntity, 'password'> | null> {
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
     return await this.prisma.user.findUnique({
       where: { email },
-      select: {
-        email: true,
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        name: true,
-      },
     });
   }
 
