@@ -27,19 +27,33 @@ model Travel {
   description String?
   startDate   DateTime
   endDate     DateTime
-  origin      String
-  destination String
-  budget      Float?
+  budget      Decimal?
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   userId String
   user   User   @relation(fields: [userId], references: [id], name: "UserTravels")
 
-  activities     Activity[]       @relation("TravelActivities")
-  FavoriteTravel FavoriteTravel[]
+  cities TravelCity[]
+
+  favorites FavoriteTravel[]
 
   @@map("Travels")
+}
+
+model TravelCity {
+  id       String @id @default(uuid())
+  travelId String
+  travel   Travel @relation(fields: [travelId], references: [id])
+  cityId   String
+  city     City   @relation(fields: [cityId], references: [id])
+
+  order Int
+
+  activities Activity[]
+
+  @@unique([travelId, order])
+  @@map("travel_cities")
 }
 
 model Activity {
@@ -51,8 +65,8 @@ model Activity {
   time        String?
   cost        Float?
 
-  travelId String
-  travel   Travel @relation(fields: [travelId], references: [id], name: "TravelActivities")
+  travelCityId String
+  travelCity   TravelCity @relation(fields: [travelCityId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -71,4 +85,16 @@ model FavoriteTravel {
 
   @@unique([userId, travelId])
   @@map("Favorites")
+}
+
+model City {
+  id          String       @id @default(uuid())
+  externalId  String       @unique
+  name        String
+  countryCode String?      @map("country_code")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  TravelCity  TravelCity[]
+
+  @@map("cities")
 }
