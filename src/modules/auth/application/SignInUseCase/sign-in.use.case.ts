@@ -10,6 +10,7 @@ export class SignInUseCase {
   constructor(private readonly getUserByEmailUseCase: GetUserByEmailUseCase) {}
 
   async execute(signInDto: SignInDto): Promise<any> {
+    // eslint-disable-next-line no-useless-catch
     try {
       const { email, password } = signInDto;
       const user = await this.getUserByEmailUseCase.execute(email);
@@ -20,6 +21,8 @@ export class SignInUseCase {
       if (!isPasswordValid) {
         throw new BadRequestException(`Credenciais inválidas`);
       }
+
+      console.log(process.env.JWT_SECRET);
 
       const accessToken = sign({ sub: user.id }, env.jwtSecret, {
         expiresIn: '1d',
